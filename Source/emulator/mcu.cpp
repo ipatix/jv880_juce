@@ -33,6 +33,7 @@
  */
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 #include <chrono>
 #include "mcu.h"
 #include "mcu_opcodes.h"

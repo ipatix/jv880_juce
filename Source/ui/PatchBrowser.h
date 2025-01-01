@@ -98,9 +98,7 @@ private:
 
         g.setColour (rowIsSelected ? juce::Colours::black : juce::Colours::white);
 
-        int length = parent->audioProcessor.patchInfoPerGroup[groupI][rowNumber + startI]->nameLength;
-        const char* strPtr = (const char*)parent->audioProcessor.patchInfoPerGroup[groupI][rowNumber + startI]->name;
-        juce::String str = juce::String(strPtr, length);
+        juce::String str = juce::String(parent->audioProcessor.patchInfoPerGroup[groupI][rowNumber + startI]->name);
         g.drawFittedText (str, { 5, 0, width, height - 2 }, juce::Justification::left, 1);
 
         g.setColour (juce::Colours::white.withAlpha (0.4f));

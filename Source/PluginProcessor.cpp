@@ -5,11 +5,12 @@
 
   ==============================================================================
 */
+#include <format>
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-static const uint8_t* expansions[] = {
+static std::vector<const uint8_t *> expansions = {
     (const uint8_t*)BinaryData::rd500_expansion_bin,
     (const uint8_t*)BinaryData::jd990_expansion_bin,
     (const uint8_t*)BinaryData::SRJV8001_Pop__CS_0x3F1CF705_bin,
@@ -84,136 +85,144 @@ Jv880_juceAudioProcessor::Jv880_juceAudioProcessor()
     // fwrite(dest, 0x800000, 1, f);
     // fclose(f);
 
-    int currentPatchI = 0;
-
     // Internal User
-    patchInfoPerGroup.push_back(std::vector<PatchInfo*>());
+    patchInfoPerGroup.emplace_back();
     for (int j = 0; j < 64; j++)
     {
-        patchInfos[currentPatchI].name = (const char*)&BinaryData::jv880_rom2_bin[0x008ce0 + j * 0x16a];
-        patchInfos[currentPatchI].nameLength = 0xc;
-        patchInfos[currentPatchI].expansionI = 0xff;
-        patchInfos[currentPatchI].patchI = j;
-        patchInfos[currentPatchI].present = true;
-        patchInfos[currentPatchI].drums = false;
-        patchInfos[currentPatchI].iInList = currentPatchI;
-        patchInfoPerGroup[0].push_back(&patchInfos[currentPatchI]);
-        currentPatchI++;
+        patchInfos.emplace_back(std::make_unique<PatchInfo>());
+        patchInfos.back()->ptr = &BinaryData::jv880_rom2_bin[0x008ce0 + j * 0x16a];
+        patchInfos.back()->name = std::string(patchInfos.back()->ptr, 12);
+        patchInfos.back()->expansionI = 0xff;
+        patchInfos.back()->patchI = j;
+        patchInfos.back()->present = true;
+        patchInfos.back()->drums = false;
+        patchInfos.back()->iInList = patchInfos.size() - 1;
+        patchInfoPerGroup.back().emplace_back(patchInfos.back());
     }
-    patchInfos[currentPatchI].name = "Drums Internal User";
-    patchInfos[currentPatchI].ptr = &BinaryData::jv880_rom2_bin[0x00e760];
-    patchInfos[currentPatchI].nameLength = 21;
-    patchInfos[currentPatchI].expansionI = 0xff;
-    patchInfos[currentPatchI].patchI = 0;
-    patchInfos[currentPatchI].present = true;
-    patchInfos[currentPatchI].drums = true;
-    patchInfos[currentPatchI].iInList = currentPatchI;
-    patchInfoPerGroup[0].push_back(&patchInfos[currentPatchI]);
-    currentPatchI++;
+    patchInfos.emplace_back(std::make_unique<PatchInfo>());
+    patchInfos.back()->name = "Drums Internal User"; // why did nameLength used to be 21 and not 19?, check other Drum names as well when changing
+    patchInfos.back()->ptr = &BinaryData::jv880_rom2_bin[0x00e760];
+    patchInfos.back()->expansionI = 0xff;
+    patchInfos.back()->patchI = 0;
+    patchInfos.back()->present = true;
+    patchInfos.back()->drums = true;
+    patchInfos.back()->iInList = patchInfos.size() - 1;
+    patchInfoPerGroup.back().emplace_back(patchInfos.back());
     
     // Internal A
     for (int j = 0; j < 64; j++)
     {
-        patchInfos[currentPatchI].name = (const char*)&BinaryData::jv880_rom2_bin[0x010ce0 + j * 0x16a];
-        patchInfos[currentPatchI].nameLength = 0xc;
-        patchInfos[currentPatchI].expansionI = 0xff;
-        patchInfos[currentPatchI].patchI = j;
-        patchInfos[currentPatchI].present = true;
-        patchInfos[currentPatchI].drums = false;
-        patchInfos[currentPatchI].iInList = currentPatchI;
-        patchInfoPerGroup[0].push_back(&patchInfos[currentPatchI]);
-        currentPatchI++;
+        patchInfos.emplace_back(std::make_unique<PatchInfo>());
+        patchInfos.back()->ptr = &BinaryData::jv880_rom2_bin[0x010ce0 + j * 0x16a];
+        patchInfos.back()->name = std::string(patchInfos.back()->ptr, 12);
+        patchInfos.back()->expansionI = 0xff;
+        patchInfos.back()->patchI = j;
+        patchInfos.back()->present = true;
+        patchInfos.back()->drums = false;
+        patchInfos.back()->iInList = patchInfos.size() - 1;
+        patchInfoPerGroup.back().emplace_back(patchInfos.back());
     }
-    patchInfos[currentPatchI].name = "Drums Internal A";
-    patchInfos[currentPatchI].ptr = &BinaryData::jv880_rom2_bin[0x016760];
-    patchInfos[currentPatchI].nameLength = 21;
-    patchInfos[currentPatchI].expansionI = 0xff;
-    patchInfos[currentPatchI].patchI = 0;
-    patchInfos[currentPatchI].present = true;
-    patchInfos[currentPatchI].drums = true;
-    patchInfos[currentPatchI].iInList = currentPatchI;
-    patchInfoPerGroup[0].push_back(&patchInfos[currentPatchI]);
-    currentPatchI++;
+    patchInfos.emplace_back(std::make_unique<PatchInfo>());
+    patchInfos.back()->name = "Drums Internal A";
+    patchInfos.back()->ptr = &BinaryData::jv880_rom2_bin[0x016760];
+    patchInfos.back()->expansionI = 0xff;
+    patchInfos.back()->patchI = 0;
+    patchInfos.back()->present = true;
+    patchInfos.back()->drums = true;
+    patchInfos.back()->iInList = patchInfos.size() - 1;
+    patchInfoPerGroup.back().emplace_back(patchInfos.back());
     
     // Internal B
     for (int j = 0; j < 64; j++)
     {
-        patchInfos[currentPatchI].name = (const char*)&BinaryData::jv880_rom2_bin[0x018ce0 + j * 0x16a];
-        patchInfos[currentPatchI].nameLength = 0xc;
-        patchInfos[currentPatchI].expansionI = 0xff;
-        patchInfos[currentPatchI].patchI = j;
-        patchInfos[currentPatchI].present = true;
-        patchInfos[currentPatchI].drums = false;
-        patchInfos[currentPatchI].iInList = currentPatchI;
-        patchInfoPerGroup[0].push_back(&patchInfos[currentPatchI]);
-        currentPatchI++;
+        patchInfos.emplace_back(std::make_unique<PatchInfo>());
+        patchInfos.back()->ptr = &BinaryData::jv880_rom2_bin[0x018ce0 + j * 0x16a];
+        patchInfos.back()->name = std::string(patchInfos.back()->ptr, 12);
+        patchInfos.back()->expansionI = 0xff;
+        patchInfos.back()->patchI = j;
+        patchInfos.back()->present = true;
+        patchInfos.back()->drums = false;
+        patchInfos.back()->iInList = patchInfos.size() - 1;
+        patchInfoPerGroup.back().emplace_back(patchInfos.back());
     }
-    patchInfos[currentPatchI].name = "Drums Internal B";
-    patchInfos[currentPatchI].ptr = &BinaryData::jv880_rom2_bin[0x01e760];
-    patchInfos[currentPatchI].nameLength = 21;
-    patchInfos[currentPatchI].expansionI = 0xff;
-    patchInfos[currentPatchI].patchI = 0;
-    patchInfos[currentPatchI].present = true;
-    patchInfos[currentPatchI].drums = true;
-    patchInfos[currentPatchI].iInList = currentPatchI;
-    patchInfoPerGroup[0].push_back(&patchInfos[currentPatchI]);
-    currentPatchI++;
+    patchInfos.emplace_back(std::make_unique<PatchInfo>());
+    patchInfos.back()->name = "Drums Internal B";
+    patchInfos.back()->ptr = &BinaryData::jv880_rom2_bin[0x01e760];
+    patchInfos.back()->expansionI = 0xff;
+    patchInfos.back()->patchI = 0.12;
+    patchInfos.back()->present = true;
+    patchInfos.back()->drums = true;
+    patchInfos.back()->iInList = patchInfos.size() - 1;
+    patchInfoPerGroup.back().emplace_back(patchInfos.back());
 
-    for (int i = 0; i < NUM_EXPS; i++)
+    for (size_t i = 0; i < expansions.size(); i++)
     {
-        patchInfoPerGroup.push_back(std::vector<PatchInfo*>());
+        patchInfoPerGroup.emplace_back();
 
-        expansionsDescr[i] = expansions[i];
+        const char *desc = expansionsDescr.emplace_back(reinterpret_cast<const char *>(expansions.at(i)));
 
         // get patches
-        int nPatches = expansionsDescr[i][0x67] | expansionsDescr[i][0x66] << 8;
+        int nPatches = desc[0x67] | desc[0x66] << 8;
         if (i == 0) nPatches = 192; // RD-500
         for (int j = 0; j < nPatches; j++)
         {
-            size_t patchesOffset = expansionsDescr[i][0x8f] | expansionsDescr[i][0x8e] << 8
-                                 | expansionsDescr[i][0x8d] << 16 | expansionsDescr[i][0x8c] << 24;
+            size_t patchesOffset = desc[0x8f] | desc[0x8e] << 8
+                                 | desc[0x8d] << 16 | desc[0x8c] << 24;
             // RD-500
             if (i == 0 && j < 64) patchesOffset = 0x0ce0;
             else if (i == 0 && j < 128) patchesOffset = 0x8370;
             else if (i == 0) patchesOffset = 0x12b82;
-            patchInfos[currentPatchI].name = (const char*)&expansionsDescr[i][patchesOffset + j * 0x16a];
+            patchInfos.emplace_back(std::make_unique<PatchInfo>());
             if (i == 0)
-                patchInfos[currentPatchI].name = (const char*)&BinaryData::rd500_patches_bin[patchesOffset + (j % 64) * 0x16a];
-            patchInfos[currentPatchI].nameLength = 0xc;
-            patchInfos[currentPatchI].expansionI = i;
-            patchInfos[currentPatchI].patchI = j;
-            patchInfos[currentPatchI].present = true;
-            patchInfos[currentPatchI].drums = false;
-            patchInfos[currentPatchI].iInList = currentPatchI;
-            patchInfoPerGroup[i + 1].push_back(&patchInfos[currentPatchI]);
-            currentPatchI++;
+                patchInfos.back()->ptr = &BinaryData::rd500_patches_bin[patchesOffset + (j % 64) * 0x16a];
+            else
+                patchInfos.back()->ptr = &desc[patchesOffset + j * 0x16a];
+            bool err = false;
+            for (size_t ci = 0; ci < 12; ci++) {
+                char c = patchInfos.back()->ptr[ci];
+                if (c == 0)
+                    break;
+                if (!strchr("abcdefghijklmnopqrstuvwqxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -+./", c)) {
+                    printf("Expansion %d patch %d contains invalid char: '%c' (%02x)\n", i, j, c, (uint8_t)c);
+                    err = true;
+                    break;
+                }
+            }
+            if (err)
+                patchInfos.back()->name = std::format("ERROR EXP={} PATCH={}", i, j);
+            else
+                patchInfos.back()->name = std::string(patchInfos.back()->ptr, 12);
+            patchInfos.back()->expansionI = i;
+            patchInfos.back()->patchI = j;
+            patchInfos.back()->present = true;
+            patchInfos.back()->drums = false;
+            patchInfos.back()->iInList = patchInfos.size() - 1;
+            patchInfoPerGroup.back().emplace_back(patchInfos.back());
         }
 
         // get drumkits
-        int nDrumkits = expansionsDescr[i][0x69] | expansionsDescr[i][0x68] << 8;
+        int nDrumkits = desc[0x69] | desc[0x68] << 8;
         if (i == 0) nDrumkits = 3; // RD-500
         for (int j = 0; j < nDrumkits; j++)
         {
-            size_t patchesOffset = expansionsDescr[i][0x93] | expansionsDescr[i][0x92] << 8
-                | expansionsDescr[i][0x91] << 16 | expansionsDescr[i][0x90] << 24;
+            size_t patchesOffset = desc[0x93] | desc[0x92] << 8
+                | desc[0x91] << 16 | desc[0x90] << 24;
             // RD-500
             if (i == 0 && j < 64) patchesOffset = 0x6760;
             else if (i == 0 && j < 128) patchesOffset = 0xd2a0;
             else if (i == 0) patchesOffset = 0x18602;
-            char* namePtr = (char*)calloc(32, 1);
-            patchInfos[currentPatchI].name = namePtr;
-            sprintf(namePtr, "Exp %d Drums %d", i, j);
-            patchInfos[currentPatchI].ptr = (const char*)&expansionsDescr[i][patchesOffset + j * 0xa7c];
+            patchInfos.emplace_back(std::make_unique<PatchInfo>());
+            patchInfos.back()->name = std::format("Exp {} Drums {}", i, j);
             if (i == 0)
-                patchInfos[currentPatchI].ptr = (const char*)&BinaryData::rd500_patches_bin[patchesOffset];
-            patchInfos[currentPatchI].nameLength = strlen(namePtr);
-            patchInfos[currentPatchI].expansionI = i;
-            patchInfos[currentPatchI].patchI = j;
-            patchInfos[currentPatchI].present = true;
-            patchInfos[currentPatchI].drums = true;
-            patchInfos[currentPatchI].iInList = currentPatchI;
-            patchInfoPerGroup[i + 1].push_back(&patchInfos[currentPatchI]);
-            currentPatchI++;
+                patchInfos.back()->ptr = (const char*)&BinaryData::rd500_patches_bin[patchesOffset];
+            else
+                patchInfos.back()->ptr = (const char*)&desc[patchesOffset + j * 0xa7c];
+            patchInfos.back()->expansionI = i;
+            patchInfos.back()->patchI = j;
+            patchInfos.back()->present = true;
+            patchInfos.back()->drums = true;
+            patchInfos.back()->iInList = patchInfos.size() - 1;
+            patchInfoPerGroup.back().emplace_back(patchInfos.back());
         }
 
         // total count
@@ -255,11 +264,7 @@ double Jv880_juceAudioProcessor::getTailLengthSeconds() const
 
 int Jv880_juceAudioProcessor::getNumPrograms()
 {
-    return 64 // internal
-         + 64 // bank A
-         + 64 // bank B
-         + totalPatchesExp // expansions
-    ;
+    return patchInfos.size();
 }
 
 int Jv880_juceAudioProcessor::getCurrentProgram()
@@ -272,7 +277,7 @@ void Jv880_juceAudioProcessor::setCurrentProgram (int index)
     if (index < 0 || index >= getNumPrograms())
         return;
 
-    int expansionI = patchInfos[index].expansionI;
+    int expansionI = patchInfos[index]->expansionI;
     if (expansionI != 0xff && status.currentExpansion != expansionI)
     {
         status.currentExpansion = expansionI;
@@ -280,11 +285,11 @@ void Jv880_juceAudioProcessor::setCurrentProgram (int index)
         mcu->SC55_Reset();
     }
 
-    if (patchInfos[index].drums)
+    if (patchInfos[index]->drums)
     {
         status.isDrums = true;
         mcu->nvram[0x11] = 0;
-        memcpy(&mcu->nvram[0x67f0], (uint8_t*)patchInfos[index].ptr, 0xa7c);
+        memcpy(&mcu->nvram[0x67f0], (uint8_t*)patchInfos[index]->ptr, 0xa7c);
         memcpy(status.drums, &mcu->nvram[0x67f0], 0xa7c);
         mcu->SC55_Reset();
     }
@@ -294,13 +299,13 @@ void Jv880_juceAudioProcessor::setCurrentProgram (int index)
         if (mcu->nvram[0x11] != 1)
         {
             mcu->nvram[0x11] = 1;
-            memcpy(&mcu->nvram[0x0d70], (uint8_t*)patchInfos[index].name, 0x16a);
+            memcpy(&mcu->nvram[0x0d70], (uint8_t*)patchInfos[index]->ptr, 0x16a);
             memcpy(status.patch, &mcu->nvram[0x0d70], 0x16a);
             mcu->SC55_Reset();
         }
         else
         {
-            memcpy(&mcu->nvram[0x0d70], (uint8_t*)patchInfos[index].name, 0x16a);
+            memcpy(&mcu->nvram[0x0d70], (uint8_t*)patchInfos[index]->ptr, 0x16a);
             memcpy(status.patch, &mcu->nvram[0x0d70], 0x16a);
             uint8_t buffer[2] = { 0xC0, 0x00 };
             mcu->postMidiSC55(buffer, sizeof(buffer));
@@ -310,9 +315,7 @@ void Jv880_juceAudioProcessor::setCurrentProgram (int index)
 
 const juce::String Jv880_juceAudioProcessor::getProgramName (int index)
 {
-    int length = patchInfos[index].nameLength;
-    const char* strPtr = (const char*)patchInfos[index].name;
-    return juce::String(strPtr, length);
+    return patchInfos[index]->name;
 }
 
 void Jv880_juceAudioProcessor::changeProgramName (int index, const juce::String& newName)

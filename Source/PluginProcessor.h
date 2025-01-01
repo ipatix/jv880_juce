@@ -8,11 +8,12 @@
 
 #pragma once
 
+#include <cstdint>
+#include <memory>
+#include <string>
 #include <vector>
 #include <JuceHeader.h>
 #include "emulator/mcu.h"
-
-constexpr int NUM_EXPS = 21;
 
 //==============================================================================
 /**
@@ -60,14 +61,13 @@ public:
 
     struct PatchInfo
     {
-        const char* name;
-        const char* ptr;
-        int nameLength;
-        int expansionI; // 0xff: no expansion
-        int patchI;
+        std::string name;
+        const char *ptr = nullptr;
+        int expansionI = 0; // 0xff: no expansion
+        int patchI = 0;
         bool present = false;
         bool drums = false;
-        int iInList;
+        size_t iInList = 0;
     };
 
     struct DataToSave
@@ -84,9 +84,9 @@ public:
 
     DataToSave status;
     MCU *mcu;
-    const uint8_t* expansionsDescr[NUM_EXPS];
-    PatchInfo patchInfos[192 + 256 * NUM_EXPS] = {0};
-    std::vector<std::vector<PatchInfo*>> patchInfoPerGroup;
+    std::vector<const char *> expansionsDescr;
+    std::vector<std::shared_ptr<PatchInfo>> patchInfos;
+    std::vector<std::vector<std::shared_ptr<PatchInfo>>> patchInfoPerGroup;
     int totalPatchesExp = 0;
 
 private:
