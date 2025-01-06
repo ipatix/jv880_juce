@@ -34,32 +34,32 @@ static std::vector<const uint8_t *> expansions = {
     (const uint8_t*)BinaryData::SRJV8019_House__CS_0x3E330C41_BIN
 };
 
-// static void unscramble(const uint8_t *src, uint8_t *dst, int len)
-// {
-//     for (int i = 0; i < len; i++)
-//     {
-//         int address = i & ~0xfffff;
-//         static const int aa[] = {
-//             2, 0, 3, 4, 1, 9, 13, 10, 18, 17, 6, 15, 11, 16, 8, 5, 12, 7, 14, 19
-//         };
-//         for (int j = 0; j < 20; j++)
-//         {
-//             if (i & (1 << j))
-//                 address |= 1<<aa[j];
-//         }
-//         uint8_t srcdata = src[address];
-//         uint8_t data = 0;
-//         static const int dd[] = {
-//             2, 0, 4, 5, 7, 6, 3, 1
-//         };
-//         for (int j = 0; j < 8; j++)
-//         {
-//             if (srcdata & (1 << dd[j]))
-//                 data |= 1<<j;
-//         }
-//         dst[i] = data;
-//     }
-// }
+static void unscramble(const uint8_t *src, uint8_t *dst, int len)
+{
+    for (int i = 0; i < len; i++)
+    {
+        int address = i & ~0xfffff;
+        static const int aa[] = {
+            2, 0, 3, 4, 1, 9, 13, 10, 18, 17, 6, 15, 11, 16, 8, 5, 12, 7, 14, 19
+        };
+        for (int j = 0; j < 20; j++)
+        {
+            if (i & (1 << j))
+                address |= 1<<aa[j];
+        }
+        uint8_t srcdata = src[address];
+        uint8_t data = 0;
+        static const int dd[] = {
+            2, 0, 4, 5, 7, 6, 3, 1
+        };
+        for (int j = 0; j < 8; j++)
+        {
+            if (srcdata & (1 << dd[j]))
+                data |= 1<<j;
+        }
+        dst[i] = data;
+    }
+}
 
 //==============================================================================
 Jv880_juceAudioProcessor::Jv880_juceAudioProcessor()
@@ -73,17 +73,42 @@ Jv880_juceAudioProcessor::Jv880_juceAudioProcessor()
                    BinaryData::jv880_waverom1_bin, BinaryData::jv880_waverom2_bin,
                    BinaryData::jv880_nvram_bin);
 
-    // unscramble
-    // FILE *f;
-    // f = fopen("/Users/giuliozausa/personal/programming/jv880_juce/expansions/rd500_expansion.bin", "rb");
-    // uint8_t* src = (uint8_t*) malloc(0x800000);
-    // fread(src, 0x800000, 1, f);
-    // fclose(f);
-    // uint8_t* dest = (uint8_t*) malloc(0x800000);
-    // unscramble(src, dest, 0x800000);
-    // f = fopen("/Users/giuliozausa/personal/programming/jv880_juce/expansions_desc/rd500_expansion.bin", "wb");
-    // fwrite(dest, 0x800000, 1, f);
-    // fclose(f);
+    //std::vector<std::pair<size_t, const char *>> descrambleList = {
+    //    { 2, "SR-JV80-01 Pop - CS 0x3F1CF705.bin" },
+    //    { 3, "SR-JV80-02 Orchestral - CS 0x3F0E09E2.BIN" },
+    //    { 4, "SR-JV80-03 Piano - CS 0x3F8DB303.bin" },
+    //    { 5, "SR-JV80-04 Vintage Synth - CS 0x3E23B90C.BIN" },
+    //    { 6, "SR-JV80-05 World - CS 0x3E8E8A0D.bin" },
+    //    { 7, "SR-JV80-06 Dance - CS 0x3EC462E0.bin" },
+    //    { 8, "SR-JV80-07 Super Sound Set - CS 0x3F1EE208.bin" },
+    //    { 9, "SR-JV80-08 Keyboards of the 60s and 70s - CS 0x3F1E3F0A.BIN" },
+    //    { 10, "SR-JV80-09 Session - CS 0x3F381791.BIN" },
+    //    { 11, "SR-JV80-10 Bass & Drum - CS 0x3D83D02A.BIN" },
+    //    { 12, "SR-JV80-11 Techno - CS 0x3F046250.bin" },
+    //    { 13, "SR-JV80-12 HipHop - CS 0x3EA08A19.BIN" },
+    //    { 14, "SR-JV80-13 Vocal - CS 0x3ECE78AA.bin" },
+    //    { 15, "SR-JV80-14 Asia - CS 0x3C8A1582.bin" },
+    //    { 16, "SR-JV80-15 Special FX - CS 0x3F591CE4.bin" },
+    //    { 17, "SR-JV80-16 Orchestral II - CS 0x3F35B03B.bin" },
+    //    { 18, "SR-JV80-17 Country - CS 0x3ED75089.bin" },
+    //    { 19, "SR-JV80-18 Latin - CS 0x3EA51033.BIN" },
+    //    { 20, "SR-JV80-19 House - CS 0x3E330C41.BIN" },
+    //    //{ 21, "SR-JV80-90 Cus99 CS_0x404FAD63.bin" },
+    //    //{ 22, "SR-JV80-97 Experience III - CS 0x0FE3E621.BIN" },
+    //    //{ 23, "SR-JV80-98_Experience_II 0x0FBBEA47.BIN" },
+    //    //{ 24, "SR-JV80-99_Experience 0x0FC21498.BIN" },
+    //};
+
+    //for (size_t i = 0; i < descrambleList.size(); i++) {
+    //    const uint8_t *src = expansions.at(descrambleList.at(i).first);
+    //    const char *name = descrambleList.at(i).second;
+    //    std::vector<uint8_t> dest(0x800000);
+    //    unscramble(src, dest.data(), dest.size());
+    //    std::string outpath = std::format("/tmp/{}", name);
+    //    FILE *f = fopen(outpath.c_str(), "wb");
+    //    fwrite(dest.data(), dest.size(), 1, f);
+    //    fclose(f);
+    //}
 
     // Internal User
     patchInfoPerGroup.emplace_back();
@@ -159,11 +184,14 @@ Jv880_juceAudioProcessor::Jv880_juceAudioProcessor()
     {
         patchInfoPerGroup.emplace_back();
 
-        const char *desc = expansionsDescr.emplace_back(reinterpret_cast<const char *>(expansions.at(i)));
+        const uint8_t *desc = expansionsDescr.emplace_back(expansions.at(i));
+
+        //printf("[%02x, %02x, %02x, %02x, %02x, %02x, %02x, %02x]\n", desc[0], desc[1], desc[2], desc[3], desc[4], desc[5], desc[6], desc[7]);
 
         // get patches
         int nPatches = desc[0x67] | desc[0x66] << 8;
         if (i == 0) nPatches = 192; // RD-500
+        //printf("exp=%d nPatches=%d\n", i, nPatches);
         for (int j = 0; j < nPatches; j++)
         {
             size_t patchesOffset = desc[0x8f] | desc[0x8e] << 8
@@ -174,16 +202,17 @@ Jv880_juceAudioProcessor::Jv880_juceAudioProcessor()
             else if (i == 0) patchesOffset = 0x12b82;
             patchInfos.emplace_back(std::make_unique<PatchInfo>());
             if (i == 0)
-                patchInfos.back()->ptr = &BinaryData::rd500_patches_bin[patchesOffset + (j % 64) * 0x16a];
+                patchInfos.back()->ptr = reinterpret_cast<const char *>(&BinaryData::rd500_patches_bin[patchesOffset + (j % 64) * 0x16a]);
             else
-                patchInfos.back()->ptr = &desc[patchesOffset + j * 0x16a];
+                patchInfos.back()->ptr = reinterpret_cast<const char *>(&desc[patchesOffset + j * 0x16a]);
             bool err = false;
             for (size_t ci = 0; ci < 12; ci++) {
+                //printf("ptr=%p\n", patchInfos.back()->ptr);
                 char c = patchInfos.back()->ptr[ci];
                 if (c == 0)
                     break;
                 if (!strchr("abcdefghijklmnopqrstuvwqxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -+./", c)) {
-                    printf("Expansion %d patch %d contains invalid char: '%c' (%02x)\n", i, j, c, (uint8_t)c);
+                    //printf("Expansion %d patch %d contains invalid char: '%c' (%02x)\n", i, j, c, (uint8_t)c);
                     err = true;
                     break;
                 }
@@ -202,6 +231,7 @@ Jv880_juceAudioProcessor::Jv880_juceAudioProcessor()
 
         // get drumkits
         int nDrumkits = desc[0x69] | desc[0x68] << 8;
+        //printf("exp=%d nDrumkits=%d\n", i, nDrumkits);
         if (i == 0) nDrumkits = 3; // RD-500
         for (int j = 0; j < nDrumkits; j++)
         {
@@ -214,9 +244,9 @@ Jv880_juceAudioProcessor::Jv880_juceAudioProcessor()
             patchInfos.emplace_back(std::make_unique<PatchInfo>());
             patchInfos.back()->name = std::format("Exp {} Drums {}", i, j);
             if (i == 0)
-                patchInfos.back()->ptr = (const char*)&BinaryData::rd500_patches_bin[patchesOffset];
+                patchInfos.back()->ptr = reinterpret_cast<const char *>(&BinaryData::rd500_patches_bin[patchesOffset]);
             else
-                patchInfos.back()->ptr = (const char*)&desc[patchesOffset + j * 0xa7c];
+                patchInfos.back()->ptr = reinterpret_cast<const char *>(&desc[patchesOffset + j * 0xa7c]);
             patchInfos.back()->expansionI = i;
             patchInfos.back()->patchI = j;
             patchInfos.back()->present = true;

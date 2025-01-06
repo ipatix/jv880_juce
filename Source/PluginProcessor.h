@@ -84,7 +84,7 @@ public:
 
     DataToSave status;
     MCU *mcu;
-    std::vector<const char *> expansionsDescr;
+    std::vector<const uint8_t *> expansionsDescr;
     std::vector<std::shared_ptr<PatchInfo>> patchInfos;
     std::vector<std::vector<std::shared_ptr<PatchInfo>>> patchInfoPerGroup;
     int totalPatchesExp = 0;
