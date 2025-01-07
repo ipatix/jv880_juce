@@ -206,21 +206,26 @@ Jv880_juceAudioProcessor::Jv880_juceAudioProcessor()
             else
                 patchInfos.back()->ptr = reinterpret_cast<const char *>(&desc[patchesOffset + j * 0x16a]);
             bool err = false;
+            std::string patchName;
             for (size_t ci = 0; ci < 12; ci++) {
                 //printf("ptr=%p\n", patchInfos.back()->ptr);
                 char c = patchInfos.back()->ptr[ci];
                 if (c == 0)
                     break;
-                if (!strchr("abcdefghijklmnopqrstuvwqxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -+./", c)) {
-                    //printf("Expansion %d patch %d contains invalid char: '%c' (%02x)\n", i, j, c, (uint8_t)c);
+                if (strchr("\"\\", c))
+                    c = ' ';
+                if (!strchr("abcdefghijklmnopqrstuvwqxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -+./!':&<>,#?^", c)) {
+                    printf("Expansion %d patch %d contains invalid char: '%c' (%02x)\n", i, j, c, (uint8_t)c);
                     err = true;
                     break;
                 }
+                patchName += c;
             }
             if (err)
                 patchInfos.back()->name = std::format("ERROR EXP={} PATCH={}", i, j);
             else
-                patchInfos.back()->name = std::string(patchInfos.back()->ptr, 12);
+                patchInfos.back()->name = patchName;
+            //printf("adding patch [exp=%d]: [%d] %s\n", i, j, patchInfos.back()->name.c_str());
             patchInfos.back()->expansionI = i;
             patchInfos.back()->patchI = j;
             patchInfos.back()->present = true;
