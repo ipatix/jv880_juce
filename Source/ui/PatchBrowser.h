@@ -98,7 +98,7 @@ private:
 
         g.setColour (rowIsSelected ? juce::Colours::black : juce::Colours::white);
 
-        juce::String str = juce::String(parent->audioProcessor.patchInfoPerGroup[groupI][rowNumber + startI]->name);
+        juce::String str = juce::String(parent->audioProcessor.patchInfoPerGroup.at(groupI).at(rowNumber + startI)->name);
         g.drawFittedText (str, { 5, 0, width, height - 2 }, juce::Justification::left, 1);
 
         g.setColour (juce::Colours::white.withAlpha (0.4f));
@@ -120,8 +120,8 @@ private:
         }
         
         int selected = owner->getSelectedRow() + startI;
-        if (selected >= 0 && selected < parent->audioProcessor.patchInfoPerGroup[groupI].size())
-          parent->audioProcessor.setCurrentProgram(parent->audioProcessor.patchInfoPerGroup[groupI][selected]->iInList);
+        if (selected >= 0 && selected < parent->audioProcessor.patchInfoPerGroup.at(groupI).size())
+          parent->audioProcessor.setCurrentProgram(parent->audioProcessor.patchInfoPerGroup.at(groupI).at(selected)->iInList);
       }
 
       int groupI = 0;
